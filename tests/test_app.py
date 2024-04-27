@@ -29,9 +29,23 @@ def test_create_user(client):
     )
 
     assert response.status_code == HTTPStatus.CREATED
-    print('response ---->', response.json())
     assert response.json() == {
         'username': 'marcelo',
         'email': 'marcelo@email.com',
         'id': 1,
+    }
+
+
+def test_read_users(client):
+    response = client.get('/users/')
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {
+        'users': [
+        {
+            'username': 'marcelo',
+            'email': 'marcelo@email.com',
+            'id': 1,
+        }
+    ]
     }
