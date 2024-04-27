@@ -3,7 +3,7 @@ from http import HTTPStatus
 import pytest
 from fastapi.testclient import TestClient
 
-from fast_zero.app import app
+from fast_zero.app import app, delete_user, update_user
 
 
 @pytest.fixture()
@@ -68,8 +68,22 @@ def test_update_user(client):
     }
 
 
+def test_update_user_exception(client):
+    with pytest.raises(Exception) as e:
+        update_user(12, {})
+    assert e.value.status_code == HTTPStatus.NOT_FOUND
+    assert e.value.detail == 'User not found'
+
+
 def test_delete_user(client):
     response = client.delete('/users/1')
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {'message': 'User deleted'}
+
+
+def test_delete_user_exception(client):
+    with pytest.raises(Exception) as e:
+        delete_user(12)
+    assert e.value.status_code == HTTPStatus.NOT_FOUND
+    assert e.value.detail == 'User not found'
