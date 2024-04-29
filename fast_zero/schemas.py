@@ -1,34 +1,31 @@
-"""Schemas"""
-
 from pydantic import BaseModel, ConfigDict, EmailStr
 
 
 class Message(BaseModel):
-    """message model"""
-
     message: str
 
 
 class UserSchema(BaseModel):
-    """User model"""
-
     username: str
     email: EmailStr
     password: str
 
 
 class UserPublic(BaseModel):
-    """User Pucblic model"""
-
     id: int
     username: str
     email: EmailStr
     model_config = ConfigDict(from_attributes=True)
 
 
-class UserDB(UserSchema):
-    id: int
-
-
 class UserList(BaseModel):
     users: list[UserPublic]
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: str | None = None
