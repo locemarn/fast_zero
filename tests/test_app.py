@@ -18,36 +18,48 @@ def test_root_deve_retornar_ok_hello_world(client):
     assert response.json() == {'message': 'Hello World!'}
 
 
-def test_create_user(client):
+def test_create_user(client, user):
     response = client.post(
         '/users/',
         json={
-            'username': 'marcelo',
-            'email': 'marcelo@email.com',
-            'password': 'secret',
+            'username': user.username,
+            'email': user.email,
+            'password': user.clean_password,
         },
     )
 
     assert response.status_code == HTTPStatus.CREATED
     assert response.json() == {
-        'username': 'marcelo',
-        'email': 'marcelo@email.com',
+        'username': user.username,
+        'email': user.email,
         'id': 1,
     }
 
 
-def test_read_users(client):
+def test_read_users(client, user):
     response = client.get('/users')
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
         'users': [
             {
-                'username': 'marcelo',
-                'email': 'marcelo@email.com',
+                'username': user.username,
+                'email': user.email,
                 'id': 1,
             }
         ]
     }
+
+
+def test_get_token(client, user):
+    response = client.post(
+        '/auth/token',
+        data={'username': user.username, 'password': user.clean_password},
+    )
+    token = response.json()
+
+    assert response.status_code == HTTPStatus.OK
+    assert 'access_token' in token
+    assert 'token_type' in token
 
 
 def test_update_user(client, user):
@@ -90,24 +102,3 @@ def test_delete_user_exception(client):
     response = client.delete('/users/12')
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == {'detail': 'User not found'}
-
-
-def test_get_token(client, user):
-    client.post(
-        '/users/',
-        json={
-            'username': user.username,
-            'email': user.email,
-            'password': user.clean_password,
-        },
-    )
-    response = client.post(
-        '/token',
-        data={'username': user.username, 'password': user.clean_password},
-    )
-    token = response.json()
-
-    assert response.status_code == HTTPStatus.OK
-    assert 'access_token' in token
-    assert 'token_type' in token
-    client.delete('/users/1')
